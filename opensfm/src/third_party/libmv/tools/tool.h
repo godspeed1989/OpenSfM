@@ -32,9 +32,14 @@
 
 namespace libmv {
 
-#ifndef gflags
-namespace gflags=google;
-#endif
+// gflags 2.1 issue: namespace google was changed to gflags without warning.
+// Luckily we will be able to use GFLAGS_GFAGS_H_ to detect if it is version
+// 2.1. If yes, we will add a temporary solution to redirect the namespace.
+// TODO: Once gflags solves the problem in a more elegant way, let's remove
+// the following hack.
+#ifndef GFLAGS_GFLAGS_H_
+namespace gflags = google;
+#endif  // GFLAGS_GFLAGS_H_
 
 inline void Init(const char *usage, int *argc, char ***argv) {
   google::InitGoogleLogging((*argv)[0]);
