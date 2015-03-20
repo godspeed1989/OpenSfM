@@ -63,7 +63,7 @@ if __name__ == "__main__":
             for i in range(len(images)):
                 for j in range(i + 1, len(images)):
                     matches = None
-                     try:
+                    try:
                         matches = data.load_matches(images[i], images[j])
                     except:
                         try:
