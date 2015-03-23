@@ -190,6 +190,22 @@ def extract_features_dsift(image, config):
     if config.get('feature_root', False): desc = root_feature(desc)
     return mask_and_normalize_features(points, desc, image.shape[1], image.shape[0], config)
 
+def extract_features_orb(image, config):
+    detector = cv2.FeatureDetector_create('ORB')
+    #'WTA_K', 'edgeThreshold', 'firstLevel', 'nFeatures', 'nLevels', 'patchSize', 'scaleFactor', 'scoreType'
+    detector.setInt('nLevels', config.get('orb_nlevels', 16))
+    detector.setInt('nFeatures', config.get('orb_nfeatures', 10000))
+    detector.setDouble('scaleFactor', config.get('orb_scalefactor', 1.1))
+    t = time.time()
+    points = detector.detect(image)
+    print 'Found {0} points in {1}s'.format( len(points), time.time()-t )
+
+    descriptor = cv2.DescriptorExtractor_create('ORB')
+    points, desc = descriptor.compute(image, points)
+    if config.get('feature_root', False): desc = root_feature(desc)
+    points = np.array([(i.pt[0], i.pt[1], i.size, i.angle) for i in points])
+    return mask_and_normalize_features(points, desc, image.shape[1], image.shape[0], config)
+
 def extract_feature(image, config):
     if len(image.shape)==3:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -206,8 +222,10 @@ def extract_feature(image, config):
         return extract_features_hahog(image, config)
     elif feature_type == 'DSIFT':
         return extract_features_dsift(image, config)
+    elif feature_type == 'ORB':
+        return extract_features_orb(image, config)
     else:
-        raise ValueError('Unknown feature type (must be SURF, SIFT, AKAZE, HAHOG or DSIFT)')
+        raise ValueError('Unknown feature type (must be SURF, SIFT, AKAZE, HAHOG DSIFT or ORB')
 
 
 
