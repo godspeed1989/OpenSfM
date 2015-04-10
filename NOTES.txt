@@ -1,0 +1,50 @@
+# focal from exif
+	width
+	height
+	focal_ratio
+	focal_35mm_equiv
+	k1
+	k2
+
+# detect features
+	features.extract_feature
+		convert to gray
+		resize image
+		extract feature: SIFT/SURF/HAHOG ...
+	save features
+
+# match features
+	load features
+	load exif
+	list ALL combination (image pairs)
+	match images' features pair by pair
+		get gps distance ???
+		preemptive match lowe bf ???
+		1. match symmetric:   feature,idx -> matches
+		2. robust match: if matches<robust_matching_min_match: matches -> rmatches
+		save matches (rmatches)
+
+# create tracks
+	load features
+	load matches
+	link matched features from EACH image to create a features graph (im1,f1)->(im2,f2)
+	find connected components of features graph
+	get good tracks(>min_track_length) from connected components
+	use good tracks to build tracks_graph
+		for each feature in a good track
+			add image->track_id to tracks_graph
+	save tracks_graph
+
+# reconstruct
+	reconstruction.incremental_reconstruction
+		weighted_projected_graph
+		for each image pair
+			bootstrap_reconstruction
+				two_view_reconstruction
+			if bootstrap has return:
+				grow_reconstruction
+					bundle
+					align_reconstruction
+					reconstructed_points_for_images
+			save reconstruction
+
